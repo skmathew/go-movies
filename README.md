@@ -1,2 +1,2 @@
-# Go and React App
+# Movies Go/React Full Stack App
 
