@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/models"
 	"context"
 	"database/sql"
 	"flag"
@@ -32,6 +33,7 @@ type AppStatus struct {
 type application struct {
 	config config
 	logger *log.Logger
+	models models.Models
 }
 
 func main() {
@@ -39,7 +41,11 @@ func main() {
 
 	flag.IntVar(&cfg.port, "port", 4000, "Server port to listen on")
 	flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production")
-	flag.StringVar(&cfg.db.dsn, "dsn", "postgres://sherinmathew@localhost/go_movies?sslmode=disable", "Postgres connection string")
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", "localhost", "5432", os.Getenv("DBUSER"), os.Getenv("DBPASS"), "go_movies")
+
+	//flag.StringVar(&cfg.db.dsn, "dsn", "postgres://postgres@localhost/go_movies?sslmode=disable", "Postgres connection string")
+	flag.StringVar(&cfg.db.dsn, "dsn", psqlInfo, "Postgres connection string")
+
 	flag.Parse()
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
@@ -55,6 +61,7 @@ func main() {
 	app := &application{
 		config: cfg,
 		logger: logger,
+		models: models.NewModels(db),
 	}
 
 	srv := &http.Server{
