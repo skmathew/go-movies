@@ -6,3 +6,5 @@
 ### go run cmd/api/main.go
 ### go get -u github.com/julienschmidt/httprouter
 ### go run cmd/api/*.go
+### go get -u github.com/lib/pq@v1.10.0
+### psql -d go_movies -f go_movies.sql
