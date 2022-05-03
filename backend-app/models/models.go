@@ -18,6 +18,7 @@ func NewModels(db *sql.DB) Models {
 
 }
 
+
 //type for movie
 type Movie struct {
 	ID int `json:"id"`
@@ -30,7 +31,7 @@ type Movie struct {
 	MPAARating string `json:"mpaa_rating"`
 	CreatedAt time.Time `json:"-"`
 	UpdatedAt time.Time `json:"-"`
-	MovieGenre []MovieGenre `json:"genres"`
+	MovieGenre map[int]string `json:"genres"`
 }
 
 type Genre struct {
