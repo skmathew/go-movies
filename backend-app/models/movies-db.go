@@ -77,39 +77,6 @@ func (m *DBModel) All() ([]*Movie, error) {
 			return nil, err
 		}
 
-		/*
-			genreQuery := `select
-				mg.id, mg.movie_id, mg.genre_id, g.genre_name
-				from movies_genres mg
-				left join genres g on mg.genre_id=g.id
-				where mg.movie_id = $1
-				`
-			genreRows, _ := m.DB.QueryContext(ctx, genreQuery, movie.ID)
-
-
-
-			genres := make(map[int]string)
-			for genreRows.Next() {
-				var mg MovieGenre
-				err := genreRows.Scan(
-					&mg.ID,
-					&mg.MovieID,
-					&mg.GenreID,
-					&mg.Genre.GenreName,
-
-				)
-
-				if err != nil {
-					return nil, err
-				}
-
-				genres[mg.ID] = mg.Genre.GenreName
-			}
-
-			genreRows.Close()
-			movie.MovieGenre = genres
-		*/
-
 		err = m.getGenresMovie(&movie)
 		if err != nil {
 			return nil, err
