@@ -9,4 +9,4 @@
 ### psql -d go_movies -f go_movies.sql
 ### export DBUSER=username
 ### export DBUSER=pass
-### go run cmd/api/*.go
+### go run cmd/api/*.go or go run ./cmd/api/
