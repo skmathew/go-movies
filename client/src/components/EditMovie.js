@@ -2,13 +2,10 @@ import React, { Component, Fragment } from 'react';
 import './EditMovie.css';
 import Input from './form-components/Input';
 import TextArea from './form-components/TextArea';
+import Select from './form-components/Select';
+
 
 export default class EditMovie extends Component {
-    state = {
-        movie: {},
-        isLoaded: false,
-        error: null,
-    }
 
     constructor(props) {
         super(props);
@@ -18,10 +15,26 @@ export default class EditMovie extends Component {
                 title: "",
                 release_date: "",
                 runtime: "",
-                mppa_rating: "",
+                mpaa_rating: "",
                 rating: "",
                 description: ""
             },
+            mpaaOptions: [
+                {id: "G", value:"G"},
+                {id: "PG", value:"PG"},
+                {id: "PG-13", value:"PG-13"},
+                {id: "R", value:"R"},
+                {id: "NC-17", value:"NC-17"},
+            ],
+            ratingOptions: [
+                //{id: "1", value:'&#11088;'},
+                {id: "1", value:'1'},
+                {id: "2", value:'2'},
+                {id: "3", value:'3'},
+                {id: "4", value:'4'},
+                {id: "5", value:'5'},
+            ],
+
             isLoaded: false,
             error: null,
         }
@@ -31,9 +44,24 @@ export default class EditMovie extends Component {
     }
 
     handleSubmit = (evnt) => {
-        console.log("Form was submitted");
         evnt.preventDefault();
-      }
+
+        const data = new FormData(evnt.target);
+        const payload = Object.fromEntries(data.entries());
+        console.log(payload);
+
+        const requestOptions = {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        }
+
+        fetch(`${process.env.REACT_APP_SERVER_URL}/v1/admin/editmovie`, requestOptions)
+        .then(response => response.JSON())
+        .then(data => {
+            console.log(data);
+        })
+
+      };
     
       handleChange = (evnt) => {
         let value = evnt.target.value;
@@ -47,11 +75,60 @@ export default class EditMovie extends Component {
       }
 
     componentDidMount() {
+        const id = this.props.match.params.id;
+        if (id > 0) {
+            console.log(process.env.REACT_APP_SERVER_URL);
+            fetch(`${process.env.REACT_APP_SERVER_URL}/v1/movie/` + id)
+            .then((response) => {
+                if (response.status !== "200") {
+                    let err = Error;
+                    err.Message = "Invalid respose code: " + response.status;
+                    this.setState({error: err});
+                }
+                return response.json();
+            })
+            .then((json) => {
+                const releaseDate = new Date(json.movie.release_date);
+                console.log(json.movie);
+
+                this.setState(
+                    {
+                        movie: {
+                            id: id,
+                            title: json.movie.title,
+                            release_date: releaseDate.toISOString().split("T")[0],
+                            runtime: json.movie.runtime,
+                            mpaa_rating: json.movie.mpaa_rating,
+                            rating: json.movie.rating,
+                            description: json.movie.description,
+                        },
+                        isLoaded: true,
+                    },
+                    (error) => {
+                        this.setState({
+                            isLoaded: true,
+                            error,
+                        })
+                    }
+                )
+            })
+        } else {
+            this.setState({
+                isLoaded: true
+            });
+        }
 
     }
 
     render() {
-        let {movie} = this.state;
+        let {movie, isLoaded, error} = this.state;
+
+        if (error) {
+            return <div>Error: {error.message}</div>
+        }
+        else if (!isLoaded) {
+            return <p>Loading....</p>
+        } else {
 
         return(
             <Fragment>
@@ -66,21 +143,7 @@ export default class EditMovie extends Component {
                     onChange={this.handleChange}
                     />
 
-                    {/*
-                    <div className="mb-3">
-                        <label htmlFor="title" className="form-label">
-                        Title
-                        </label>
-                        <input
-                        type="text"
-                        className="form-control"
-                        id="title"
-                        name="title"
-                        value={movie.title}
-                        onChange={this.handleChange}
-                        />
-                    </div>
-                    */} 
+
 
                     <Input 
                     title={'Title'}
@@ -105,7 +168,6 @@ export default class EditMovie extends Component {
                         <input  type="number" 
                         min="20" 
                         max="600" 
-                        step="10" 
                         required 
                         className='form-control' 
                         id='runtime' 
@@ -114,34 +176,24 @@ export default class EditMovie extends Component {
                         onChange={this.handleChange}/>
                     </div>
 
-                    <div className='mb-3'>
-                        <label htmlFor='mppa_rating'required className='form-label'>
-                            MPAA Rating
-                        </label>
-                        <select className ='form-select' name='mppa_rating' value={movie.mppa_rating} onChange={this.handleChange}>
-                            <option className='form-select' value='G'>G</option>
-                            <option className='form-select' value='PG'>PG</option>
-                            <option className='form-select' value='PG-13'>PG-13</option>
-                            <option className='form-select' value='R'>R</option>
-                            <option className='form-select' value='NC-17'>NC-17</option>
-                            
+                    <Select 
+                    title={'MPAA Rating'}
+                    name={'mpaa_rating'}
+                    option={this.state.mpaaOptions}
+                    value={movie.mpaa_rating}
+                    handleChange={this.handleChange}
+                    placeholder={'Choose...'}
+                    />
 
-                        </select>
-                    </div>
 
-                    <div className='mb-3'>
-                        <label htmlFor='rating' required className='form-label'>
-                            Rating
-                        </label>
-                        <select className ='form-select'  name = 'rating' value={movie.rating} onChange={this.handleChange}>
-                            <option className='form-select' value='1'>&#11088;</option>
-                            <option className='form-select' value='2'>&#11088;&#11088;</option>
-                            <option className='form-select' value='3'>&#11088;&#11088;&#11088;</option>
-                            <option className='form-select' value='4'>&#11088;&#11088;&#11088;&#11088;</option>
-                            <option className='form-select' value='5'>&#11088;&#11088;&#11088;&#11088;&#11088;</option>
-                            
-                        </select>
-                    </div>
+                    <Select 
+                    title={'Rating'}
+                    name={'rating'}
+                    option={this.state.ratingOptions}
+                    value={movie.rating}
+                    handleChange={this.handleChange}
+                    placeholder={'Choose...'}
+                    />
 
 
                     <TextArea 
@@ -164,6 +216,7 @@ export default class EditMovie extends Component {
                 </div>
             </Fragment>
         )
+        }
         
     }
 }

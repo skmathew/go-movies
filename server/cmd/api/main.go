@@ -1,7 +1,7 @@
 package main
 
 import (
-	"backend/models"
+	"server/models"
 	"context"
 	"database/sql"
 	"flag"
@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"strconv"
 
 	_ "github.com/lib/pq"
 )
@@ -38,17 +39,22 @@ type application struct {
 
 func main() {
 	var cfg config
+	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-	flag.IntVar(&cfg.port, "port", 4000, "Server port to listen on")
+	port, err := strconv.Atoi(os.Getenv("SERVER_PORT"))
+	if err != nil {
+		logger.Fatal(err)
+	}
+	flag.IntVar(&cfg.port, "port", port, "Server port to listen on")
 	flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production")
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", "localhost", "5432", os.Getenv("DBUSER"), os.Getenv("DBPASS"), "go_movies")
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", os.Getenv("POSTGRES_HOST"),os.Getenv("POSTGRES_PORT"), os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_DB"), os.Getenv("POSTGRES_SSL_MODE"))
+
 
 	//flag.StringVar(&cfg.db.dsn, "dsn", "postgres://postgres@localhost/go_movies?sslmode=disable", "Postgres connection string")
 	flag.StringVar(&cfg.db.dsn, "dsn", psqlInfo, "Postgres connection string")
 
 	flag.Parse()
 
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
 
 	db, err := openDB(cfg)
