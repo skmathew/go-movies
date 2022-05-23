@@ -9,7 +9,7 @@ In the project directory, you can run:
 npm install bootstrap
 
 npm install react-router-dom@5.2.0
-### REACT_APP_SERVER_URL=http://localhost:4001
+### source ../.env
 ### `npm start`
 ### docker build -t react-movies .
 ### docker run -p 3000:3000 --env-file ../.env react-movies
