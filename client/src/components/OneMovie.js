@@ -10,7 +10,7 @@ export default class OneMovie extends Component {
     };
 
     componentDidMount() {
-        fetch("${process.env.REACT_APP_SERVER_URL}/v1/movie/" + this.props.match.params.id)
+        fetch(`${process.env.REACT_APP_SERVER_URL}/v1/movie/` + this.props.match.params.id)
         //.then((response) => response.json())
         .then((response) => {
             console.log("Status code is", response.status);

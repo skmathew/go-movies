@@ -37,14 +37,30 @@ export default class EditMovie extends Component {
 
             isLoaded: false,
             error: null,
+            errors: [],
         }
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
+    
+
     handleSubmit = (evnt) => {
         evnt.preventDefault();
+
+        //client side validation
+        let errors = [];
+        if (this.state.movie.title === "") {
+            errors.push("title");
+        }
+
+        this.setState({errors: errors});
+
+        if (errors.length > 0) {
+            return false;
+        }
+
 
         const data = new FormData(evnt.target);
         const payload = Object.fromEntries(data.entries());
@@ -56,7 +72,7 @@ export default class EditMovie extends Component {
         }
 
         fetch(`${process.env.REACT_APP_SERVER_URL}/v1/admin/editmovie`, requestOptions)
-        .then(response => response.JSON())
+        .then(response => response.json())
         .then(data => {
             console.log(data);
         })
@@ -72,6 +88,10 @@ export default class EditMovie extends Component {
             [name]: value,
           }
         }))
+      }
+
+      hasError(key) {
+          return this.state.errors.indexOf(key) !== -1;
       }
 
     componentDidMount() {
@@ -144,13 +164,15 @@ export default class EditMovie extends Component {
                     />
 
 
-
                     <Input 
                     title={'Title'}
+                    className={this.hasError("title") ? "is-invalid": ""}
                     type='text'
                     name={'title'}
                     value={movie.title}
                     handleChange={this.handleChange}
+                    errorDiv={this.hasError("title") ? "text-danger": "d-none"}
+                    errorMsg={"Please enter a title"}
                     />
 
                     <Input 
@@ -162,13 +184,12 @@ export default class EditMovie extends Component {
                     />
 
                     <div className='mb-3'>
-                        <label htmlFor='runtime' name='runtime' required className='form-label'>
+                        <label htmlFor='runtime' name='runtime' className='form-label'>
                             Run Time - Minutes
                         </label>
                         <input  type="number" 
                         min="20" 
-                        max="600" 
-                        required 
+                        max="600"  
                         className='form-control' 
                         id='runtime' 
                         name='runtime' 

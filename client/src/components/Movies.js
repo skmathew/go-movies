@@ -10,7 +10,7 @@ export default class Movies extends Component {
     };
 
     componentDidMount() {
-        fetch("${process.env.REACT_APP_SERVER_URL}/v1/movies")
+        fetch(`${process.env.REACT_APP_SERVER_URL}/v1/movies`)
         //.then((response) => response.json())
         .then((response) => {
             console.log("Status code is", response.status);
